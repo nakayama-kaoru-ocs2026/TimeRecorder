@@ -23,8 +23,8 @@
  * </p>
  */
 public class TimeRecorder {
-    public static final String STATUS_WORK = "出勤";
-    public static final String STATUS_OFF = "退勤";
+    public static final String STATUS_WORK = "1";
+    public static final String STATUS_OFF = "0";
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("コマンドライン引数を1つ指定してください。");
