@@ -1,2 +1,17 @@
-# TimeRecorder
+# Time Recorder
 S2SA11:中山薫
+---
+具体的なjavacdocコメントを作成してください。
+- Javaソースコード名
+:TimeRecorder.java
+- クラス名
+:public class TimeRecorder
+- クラスの目的:出退勤を管理する
+- 利用方法:
+1. コマンドライン引数で出勤と退勤を区別する
+    - "1"が出勤で、"0"が退勤とする
+2. 実行すると標準出力に以下の情報を出力して終了する
+    - 出勤 yyyy/mm/dd hh:mm:ss
+    - 出力の様式は以下の通り
+        - 出勤時は"出勤"、退勤時は"退勤"を出力し、1文字の空欄を開ける
+        - "yyyy/mm/dd hh:mm:ss"は現在日時
