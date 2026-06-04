@@ -25,8 +25,6 @@
 public class TimeRecorder {
     public static final String STATUS_WORK = "1";
     public static final String STATUS_OFF = "0";
-    public static final String LABEL_WORK = "出勤";
-    public static final String LABEL_OFF = "退勤";
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("コマンドライン引数を1つ指定してください。");
@@ -37,9 +35,9 @@ public class TimeRecorder {
         String statusLabel;
 
         if (action.equals(STATUS_WORK)) {
-            statusLabel = LABEL_WORK;
+            statusLabel = "出勤";
         } else if (action.equals(STATUS_OFF)) {
-            statusLabel = LABEL_OFF;
+            statusLabel = "退勤";
         } else {
             System.out.println("コマンドライン引数に '" + STATUS_WORK + "' または '" + STATUS_OFF + "' を指定してください。");
             return;
