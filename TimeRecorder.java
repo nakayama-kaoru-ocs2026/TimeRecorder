@@ -25,6 +25,8 @@
 public class TimeRecorder {
     public static final String STATUS_WORK = "1";
     public static final String STATUS_OFF = "0";
+    public static final String LABEL_WORK = "出勤";
+    public static final String LABEL_OFF = "退勤";
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("コマンドライン引数を1つ指定してください。");
@@ -32,12 +34,12 @@ public class TimeRecorder {
         }
 
         String action = args[0];
-        String status;
+        String statusLabel;
 
         if (action.equals(STATUS_WORK)) {
-            status = STATUS_WORK;
+            statusLabel = LABEL_WORK;
         } else if (action.equals(STATUS_OFF)) {
-            status = STATUS_OFF;
+            statusLabel = LABEL_OFF;
         } else {
             System.out.println("コマンドライン引数に '" + STATUS_WORK + "' または '" + STATUS_OFF + "' を指定してください。");
             return;
@@ -47,7 +49,7 @@ public class TimeRecorder {
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         String formattedDateTime = now.format(formatter);
 
-        System.out.println(status + " " + formattedDateTime);
+        System.out.println(statusLabel + " " + formattedDateTime);
     }
 }
  
