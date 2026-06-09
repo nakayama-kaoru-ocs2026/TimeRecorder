@@ -1,140 +1,106 @@
 /**
- * 出退勤を管理するクラスです。
- *
+ * 出退勤時刻を記録するクラスです。
  * <p>
- * コマンドライン引数によって出勤または退勤を判定し、
- * 現在日時とともに標準出力へ出力します。
- * また、出退勤情報および操作ログをファイルへ記録します。
+ * コマンドライン引数で出勤または退勤を判別し、
+ * 実行時の現在日時を標準出力および記録ファイルへ出力します。
+ * また、処理内容やエラー情報を操作ログへ記録します。
  * </p>
  *
  * <h2>利用方法</h2>
- * <ul>
- *   <li>コマンドライン引数に "1" を指定した場合は出勤として処理します。</li>
- *   <li>コマンドライン引数に "0" を指定した場合は退勤として処理します。</li>
- * </ul>
+ * <pre>
+ * java TimeRecorder 1
+ * </pre>
+ * 出勤として現在日時を出力します。
  *
- * <h2>標準出力形式</h2>
+ * <pre>
+ * java TimeRecorder 0
+ * </pre>
+ * 退勤として現在日時を出力します。
+ *
+ * <h2>出力形式</h2>
  * <pre>
  * 出勤 yyyy/MM/dd HH:mm:ss
  * 退勤 yyyy/MM/dd HH:mm:ss
  * </pre>
  *
- * <p>
- * 出勤時は「出勤」、退勤時は「退勤」を出力し、
- * その後に1文字の空白を挟んで現在日時を出力します。
- * </p>
- *
- * <h2>チェックポイント02 追加機能</h2>
- * <p>
- * 出退勤情報をファイルへ記録します。
- * </p>
  * <ul>
- *   <li>ファイル名：time_record.dat</li>
- *   <li>文字コード：UTF-8</li>
- *   <li>ファイルが存在する場合は末尾へ追記します。</li>
+ *   <li>コマンドライン引数が {@code 1} の場合は「出勤」を出力します。</li>
+ *   <li>コマンドライン引数が {@code 0} の場合は「退勤」を出力します。</li>
+ *   <li>「出勤」または「退勤」の後には半角スペースを1文字出力します。</li>
+ *   <li>日時は実行時点の現在日時を {@code yyyy/MM/dd HH:mm:ss} 形式で出力します。</li>
+ * </ul>
+ *
+ * <h2>出退勤記録ファイル</h2>
+ * <ul>
+ *   <li>ファイル名: {@code time_record.dat}</li>
+ *   <li>文字コード: UTF-8</li>
  *   <li>ファイルが存在しない場合は新規作成します。</li>
- *   <li>標準出力と同じ形式の内容をファイルへ出力します。</li>
- * </ul>
- *
- * <h2>チェックポイント03 追加機能</h2>
- * <p>
- * プログラムの操作ログをファイルへ記録します。
- * </p>
- * <ul>
- *   <li>ファイル名：timerecorder.log</li>
- *   <li>文字コード：UTF-8</li>
  *   <li>ファイルが存在する場合は末尾へ追記します。</li>
- *   <li>ファイルが存在しない場合は新規作成します。</li>
+ *   <li>標準出力と同一内容を記録します。</li>
  * </ul>
  *
- * <h3>ログ出力形式</h3>
+ * <h2>ログファイル</h2>
  * <ul>
- *   <li>コマンドライン引数
- *     <pre>yyyy/MM/dd HH:mm:ss [INFO] コマンドライン引数</pre>
- *   </li>
- *   <li>出退勤の出力結果
- *     <pre>yyyy/MM/dd HH:mm:ss [INFO] 出退勤の出力結果</pre>
- *   </li>
- *   <li>エラーメッセージ
- *     <pre>yyyy/MM/dd HH:mm:ss [ERROR] エラーメッセージ</pre>
- *   </li>
- *   <li>例外発生時の出力結果
- *     <pre>yyyy/MM/dd HH:mm:ss [CRITICAL] 例外メッセージ</pre>
- *   </li>
+ *   <li>ファイル名: {@code timerecorder.log}</li>
+ *   <li>文字コード: UTF-8</li>
+ *   <li>ファイルが存在しない場合は新規作成します。</li>
+ *   <li>ファイルが存在する場合は末尾へ追記します。</li>
  * </ul>
  *
- * @author S2SA11 中山薫
+ * <h2>ログ出力形式</h2>
+ * <pre>
+ * yyyy/MM/dd HH:mm:ss [INFO] コマンドライン引数
+ * yyyy/MM/dd HH:mm:ss [INFO] 出退勤の出力結果
+ * yyyy/MM/dd HH:mm:ss [ERROR] エラーメッセージ
+ * yyyy/MM/dd HH:mm:ss [CRITICAL] 例外メッセージ
+ * </pre>
+ *
+ * <ul>
+ *   <li>コマンドライン引数の受領内容を INFO レベルで記録します。</li>
+ *   <li>出退勤の出力結果を INFO レベルで記録します。</li>
+ *   <li>入力値不正などのエラーを ERROR レベルで記録します。</li>
+ *   <li>例外発生時は例外メッセージを CRITICAL レベルで記録します。</li>
+ * </ul>
  */
 public class TimeRecorder {
-    public static final String work_in = "1";
-    public static final String work_out = "0";
-    public static final String file_name = "time_record.dat";
-    public static final String log_file_name = "timerecorder.log";
+    public static final String STATUS_WORK = "1";
+    public static final String STATUS_OFF = "0";
+    public static final String FILE_NAME = "time_record.dat";
+
     public static void main(String[] args) {
-        String formattedDateTime = java.time.LocalDateTime.now()
-                .format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
-
-        try (java.io.FileWriter logWriter = new java.io.FileWriter(log_file_name, true)) {
-            logWriter.write(formattedDateTime + " [INFO] コマンドライン引数: " + java.util.Arrays.toString(args) + System.lineSeparator());
-        } catch (java.io.IOException e) {
-            System.err.println("ログファイルへの書き込みに失敗しました: " + e.getMessage());
-        }
-
-        // コマンドライン引数の処理
         if (args.length != 1) {
-            String errorMessage = "使用方法: java TimeRecorder <" + work_in + "|" + work_out + ">";
-            System.out.println(errorMessage);
-            System.out.println(work_in + ": 出勤, " + work_out + ": 退勤");
-
-            try (java.io.FileWriter logWriter = new java.io.FileWriter(log_file_name, true)) {
-                logWriter.write(formattedDateTime + " [ERROR] " + errorMessage + System.lineSeparator());
-            } catch (java.io.IOException e) {
-                System.err.println("ログファイルへの書き込みに失敗しました: " + e.getMessage());
-            }
+            System.out.println("コマンドライン引数の数が不正です。");
+            // ログへの記録
+            Logger.println(Logger.loglevel.ERROR, "コマンドライン引数の数が不正です。");
             return;
         }
 
-        String command = args[0];
         String status;
-        if (work_in.equals(command)) {
+        if (args[0].equals(STATUS_WORK)) {
             status = "出勤";
-        } else if (work_out.equals(command)) {
+        } else if (args[0].equals(STATUS_OFF)) {
             status = "退勤";
         } else {
-            String errorMessage = "無効な引数です。使用方法: java TimeRecorder <" + work_in + "|" + work_out + ">";
-            System.out.println(errorMessage);
-
-            try (java.io.FileWriter logWriter = new java.io.FileWriter(log_file_name, true)) {
-                logWriter.write(formattedDateTime + " [ERROR] " + errorMessage + System.lineSeparator());
-            } catch (java.io.IOException e) {
-                System.err.println("ログファイルへの書き込みに失敗しました: " + e.getMessage());
-            }
+            System.out.println("コマンドライン引数が不正です。");
+            // ログへの記録
+            Logger.println(Logger.loglevel.ERROR, "コマンドライン引数が不正です。");
             return;
         }
+        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
 
-        // 現在日時の取得とフォーマット
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        formattedDateTime = now.format(formatter);
-
-        // 出力内容の作成
-        String output = status + " " + formattedDateTime;
-
-        // 標準出力への出力
-        System.out.println(output);
-
-        // ファイルへの出力
-        try (java.io.FileWriter writer = new java.io.FileWriter(file_name, true)) {
-            writer.write(output + System.lineSeparator());
+        System.out.println(status + " " + timestamp);
+        // 出退勤記録ファイルへの出力
+        try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(FILE_NAME, true))) {
+            writer.println(status + " " + timestamp);
         } catch (java.io.IOException e) {
-            System.err.println("ファイルへの書き込みに失敗しました: " + e.getMessage());
+            System.err.println("ファイルへの出力に失敗しました。");
+            e.printStackTrace();
+            // ログへの記録
+            Logger.println(Logger.loglevel.CRITICAL, "出退勤記録ファイルへの出力に失敗しました。");
+            Logger.println(Logger.loglevel.CRITICAL, e.getMessage());
+            return;
         }
-
-        // ログファイルへの出力
-        try (java.io.FileWriter logWriter = new java.io.FileWriter(log_file_name, true)) {
-            logWriter.write(formattedDateTime + " [INFO] " + output + System.lineSeparator());
-        } catch (java.io.IOException e) {
-            System.err.println("ログファイルへの書き込みに失敗しました: " + e.getMessage());
-        }
+        // ログへの記録
+        Logger.println(Logger.loglevel.INFO, status + " " + timestamp);
     }
 }
