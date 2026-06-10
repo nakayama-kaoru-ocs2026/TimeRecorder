@@ -63,10 +63,13 @@
  * </ul>
  */
 public class TimeRecorder {
-    public static final String STATUS_WORK = "1";
-    public static final String STATUS_OFF = "0";
-    public static final String FILE_NAME = "time_record.dat";
-
+    public static final String STATUS_WORK = "1";  // 出勤を表す定数
+    public static final String STATUS_OFF = "0";  // 退勤を表す定数
+    public static final String FILE_NAME = "time_record.dat";  // 出退勤記録ファイル名
+    /**
+     * プログラムのエントリーポイントです。
+     * @param args: コマンドライン引数。出勤は "1"、退勤は "0" を指定します。
+     */
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("コマンドライン引数の数が不正です。");
