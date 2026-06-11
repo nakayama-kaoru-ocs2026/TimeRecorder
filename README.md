@@ -41,6 +41,7 @@ S2SA11:中山薫
         - 例外発生時の出力結果
             - "yyyy/mm/dd hh:mm:ss [CRITICAL] 例外メッセージ"
 
+TimeRecorderのJavadocコメントを修正し、TimeRecordServerのJavadocコメントを新規作成して下さい。
 5. チェックポイント04の詳細設計（仕様変更）
     - クライアントアプリとサーバーアプリに分ける
         - アプリ間の通信方法: java.net.Socket, java.net.ServerSocketを用いた TCP/IP通信
