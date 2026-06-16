@@ -95,7 +95,7 @@ public class TimeRecorder {
         String status;
         if(args[1].equals(STATUS_WORK)) {
             status = "出勤";
-        } else if(args[1].equals(STATUS_OFF_WORK)) {
+        } else if(args[].equals(STATUS_OFF_WORK)) {
             status = "退勤";
         } else {
             System.err.println("コマンドライン引数が不正です。出勤は\"1\"、退勤は\"0\"を指定してください。");
@@ -108,8 +108,15 @@ public class TimeRecorder {
         System.out.println(status + " " + timestamp);
 
         // サーバーへの送信処理を実装します。
-        try(java.net.Socket = new java.net.Socket("localhost",TimeRecorderSever.PORT));
-        
+        try (java.net.Socket socket = new java.net.Socket("localhost", 12345);
+             java.io.PrintWriter out = new java.io.PrintWriter(socket.getOutputStream(), true)) {
+            out.println(status);
+            Logger.println(Logger.loglevel.INFO, "サーバーへの送信成功: " + status);
+        } catch (java.io.IOException e) {
+            System.err.println("サーバーへの送信に失敗しました。");
+            //ログへの記録
+            Logger.println(Logger.loglevel.CRITICAL, "サーバーへの送信に失敗: " + e.getMessage());
+        }
         //ログへの記録
         Logger.println(Logger.loglevel.INFO, "コマンドライン引数: " + args[0]);
     }
