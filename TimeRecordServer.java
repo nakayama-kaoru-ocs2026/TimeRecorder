@@ -56,8 +56,9 @@ public class TimeRecordServer {
      * @param args: コマンドライン引数は使用しません。
      */
     public static void main(String[] args) {
-        try (java.net.ServerSocket serverSocket = new java.net.ServerSocket(PORT)) {
-            System.out.println("サーバーがポート " + PORT + " で起動しました。");
+        try (java.net.ServerSocket serverSocket = new java.net.ServerSocket(PORT);
+            DatabaseManager db = new DatabaseManager()){
+        System.out.println("サーバーがポート " + PORT + " で起動しました。");
             // ログへの記録
             Logger.println(Logger.LogLevel.INFO, "[Server]サーバーがポート " + PORT + " で起動しました。");
             while (true) {
@@ -65,7 +66,7 @@ public class TimeRecordServer {
                         java.io.BufferedReader reader = new java.io.BufferedReader(
                                 new java.io.InputStreamReader(clientSocket.getInputStream()));
                         java.io.PrintWriter writer = new java.io.PrintWriter(
-                                new java.io.FileWriter(FILE_NAME, true))) {
+                                new java.io.FileWriter(FILE_NAME, true))){
                     String line = reader.readLine();
                     if (line == null) {
                         continue;
@@ -82,10 +83,36 @@ public class TimeRecordServer {
                         Logger.println(Logger.LogLevel.ERROR, "[Server]不正な入力を受信しました: " );
                         continue;
                     }
+                    //社員番号から社員名を取得
+                    String memberName = "";
+                    try {
+                        memberName = db.getMemberName(parts[0]);
+                    }catch(java.sql.SQLException e) {
+                        System.err.println("データベースのアクセスに失敗しました。");
+                        e.printStackTrace();
+                        // ログへの記録
+                        Logger.println(Logger.LogLevel.CRITICAL, "[Server]データベースのアクセスに失敗しました。例外: " + e.getMessage());
+                        continue;
+                    }
+                    if(memberName == null){
+                        System.out.println("社員番号 " + parts[0] + " は社員マスタに存在しません。");
+                        //ログへの記録
+                        Logger.println(Logger.LogLevel.ERROR, "[Server]社員番号 " + parts[0] + " は社員マスタに存在しません。");
+                        continue;
+                    }
                     String output = status + " "
                             + java.time.LocalDateTime.now().format(
-                                    java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))+ " " + parts[0];
+                                    java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))+ " " + memberName;
                     System.out.println(output);
+                    //ここから
+                    try{
+                        db.insertTimeRecord(parts[0],parts[1],java.time.LocalDateTime.now());
+                    }catch(java.sql.SQLException e) {
+                        System.out.println("データベースへのアクセスに失敗しました。");
+                        e.printStackTrace();
+                        // ログへの記録
+                        Logger.println(Logger.LogLevel.CRITICAL, "[Server]データベースへのアクセスに失敗しました。例外: " + e.getMessage());
+                    }
                     // 出退勤記録ファイルへ出力(追記)
                     writer.println(output);
                     // ログへの記録
@@ -102,6 +129,11 @@ public class TimeRecordServer {
             e.printStackTrace();
             // ログへの記録
             Logger.println(Logger.LogLevel.CRITICAL, "[Server]サーバーの起動に失敗しました。例外: " + e.getMessage());
+        }catch (java.sql.SQLException e) {
+            System.err.println("データベースの接続に失敗しました。");
+            e.printStackTrace();
+            // ログへの記録
+            Logger.println(Logger.LogLevel.CRITICAL, "[Server]データベースの初期化に失敗しました。例外: " + e.getMessage());
         }
     }
 }

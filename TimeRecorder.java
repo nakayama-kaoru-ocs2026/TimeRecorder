@@ -112,4 +112,5 @@ public class TimeRecorder {
         // ログへの記録
         Logger.println(Logger.LogLevel.INFO, status + " " + timestamp + " " + args[0]);
     }
+    //社員番号から社員名を取得するメソッド
 }
